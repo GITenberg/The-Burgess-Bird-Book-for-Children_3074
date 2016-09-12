@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: dHi4fdbDfvdtApn27PT7H3XE1mbtCQAr+jkW1wwT8WZX40Nb3Fd28dS6lt1yVZMdCPopbB5MryWkT5W4b51wPI9+1b9Ahw7DkUQViksQ5s4IOOGFKy2ijGztqxEHwwYHasIXWQ0uyNDyY0RTVE1SyESpbcedY13tPYTsFHTrliHJgPio75b4RpoeyWPj+fB52hOYttUkNzBRbQmlkzkLHZr9vRSryFb6OVLyQ+jZ9fyBDr22EE+0pTNfhAblD2DCnQGj+o8gHiT+/OHNgojPPR8IxlAN8tc3xITzISX9gi0iyLXc1dv1gUWkW+cNKFpBBDPwQ9HxYNlctZDXbs20gPJRwBWik/aZI4DX3+Rhys+5gAmURyAB6xquD4Nd2ySTckdLEfmzijKzkUmWtKEVLxZHjdJmx7+YzSCzSgB9Zgpu1ZfNPuQ1LjyCyM6/CxrsquKtCFFv6yiG+09HgHrKJRguG5kXN1tA10QHiRHOrJ4wsRNj597Zd4GaIbacC0mZzQQJvSHniu1+wAPgyOBx60HTCTmY7kugShI1wX7fFHioqhwkW3Bs7yrq+W9fVkeRC3fHQXmweA/dFbdAEcUdPVYT99K2Dex5z5YBX9JhaKW3qFmV2xWMAAUElu7ZAWtreWvcw8jrqS+8xRYQjeBrUkHL79NKSdn/tZM+XhiQnXA=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Burgess-Bird-Book-for-Children_3074
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
